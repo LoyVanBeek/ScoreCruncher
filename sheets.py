@@ -46,10 +46,29 @@ def help_me_carry():
     form = generate_form_for_scoresheet(open("/home/loy/Dropbox/RoboCupTC/RuleBook/scoresheets/HelpMeCarry.tex"))
     
     if request.method == 'POST' and form.validate():
-        for k,v in form.__dict__.items():
-            print k, v
+        # TODO: save scores
         flash('Thanks for the scores')
         return redirect(url_for("help_me_carry"))
+    return render_template('scoresheet.html', form=form)
+
+@app.route('/storing_groceries', methods=['GET', 'POST'])
+def storing_groceries():
+    form = generate_form_for_scoresheet(open("/home/loy/Dropbox/RoboCupTC/RuleBook/scoresheets/StoringGroceries.tex"))
+    
+    if request.method == 'POST' and form.validate():
+        # TODO: save scores
+        flash('Thanks for the scores')
+        return redirect(url_for("storing_groceries"))
+    return render_template('scoresheet.html', form=form)
+
+@app.route('/spr', methods=['GET', 'POST'])
+def spr():
+    form = generate_form_for_scoresheet(open("/home/loy/Dropbox/RoboCupTC/RuleBook/scoresheets/SPR.tex"))
+    
+    if request.method == 'POST' and form.validate():
+        # TODO: save scores
+        flash('Thanks for the scores')
+        return redirect(url_for("spr"))
     return render_template('scoresheet.html', form=form)
 
 if __name__ == "__main__":
