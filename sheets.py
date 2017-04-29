@@ -22,9 +22,8 @@ def generate_field(line):
     if line.startswith("\scoreitem") or True:
         elements = re.findall('\{(.*?)\}', line)
         max_score = elements[0]
-        achievement_desc = elements[1]
+        achievement_desc = elements[1] + " [{score}]".format(score=max_score)
         field_key = achievement_desc.replace(" ", "_")
-        achievement_desc += "({score})".format(score=max_score)
         return field_key, IntegerField(description=achievement_desc, validators=[validators.NumberRange(min=0, max=max_score)])
 
 def generate_form_for_scoresheet(sheet_file):
@@ -37,7 +36,6 @@ def generate_form_for_scoresheet(sheet_file):
         if "\scoreitem" in line:
             name, field = generate_field(line)
             if field:
-                # name = field.description.replace(" ", "_")
                 setattr(TestSheet, name, field)
 
     form = TestSheet(request.form)
