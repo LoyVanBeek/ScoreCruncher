@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 import os
+import sys
 import re
 from flask import Flask, session
 # from flask.ext.session import Session
@@ -8,6 +9,8 @@ from wtforms import Form, Field, BooleanField, StringField, DateTimeField, TextA
 
 app = Flask(__name__)
 # sess = Session()
+
+scoresheets_dir = "~/Dropbox/RoboCupTC/RuleBook/scoresheets/"
 
 class Scoresheet(Form):
     username = StringField('Referee', [validators.Length(min=3, max=25)])
@@ -41,41 +44,25 @@ def generate_form_for_scoresheet(sheet_file):
     form = TestSheet(request.form)
     return form
 
-@app.route('/help_me_carry', methods=['GET', 'POST'])
-def help_me_carry():
-    form = generate_form_for_scoresheet(open("/home/loy/Dropbox/RoboCupTC/RuleBook/scoresheets/HelpMeCarry.tex"))
+@app.route('/scoresheet/<testname>')
+def scoresheet(testname):
+    sheet_path = os.path.expanduser(os.path.join(scoresheets_dir, testname+".tex"))
+    form = generate_form_for_scoresheet(open(sheet_path))
     
     if request.method == 'POST' and form.validate():
         # TODO: save scores
         flash('Thanks for the scores')
-        return redirect(url_for("help_me_carry"))
-    return render_template('scoresheet.html', form=form)
-
-@app.route('/storing_groceries', methods=['GET', 'POST'])
-def storing_groceries():
-    form = generate_form_for_scoresheet(open("/home/loy/Dropbox/RoboCupTC/RuleBook/scoresheets/StoringGroceries.tex"))
-    
-    if request.method == 'POST' and form.validate():
-        # TODO: save scores
-        flash('Thanks for the scores')
-        return redirect(url_for("storing_groceries"))
-    return render_template('scoresheet.html', form=form)
-
-@app.route('/spr', methods=['GET', 'POST'])
-def spr():
-    form = generate_form_for_scoresheet(open("/home/loy/Dropbox/RoboCupTC/RuleBook/scoresheets/SPR.tex"))
-    
-    if request.method == 'POST' and form.validate():
-        # TODO: save scores
-        flash('Thanks for the scores')
-        return redirect(url_for("spr"))
+        return redirect(url_for("scoresheet/{testname}".format(testname=testname)))
     return render_template('scoresheet.html', form=form)
 
 if __name__ == "__main__":
     app.secret_key = os.urandom(24)
     app.config['SESSION_TYPE'] = 'filesystem'
 
-    # sess.init_app(app)
+    try:
+        scoresheets_dir = sys.argv[1]
+    except IndexError:
+        app.logger.warning("Please supply a path to the scoresheets directory of the Rulebook. Now using default")
 
     app.debug = True
     app.run()
