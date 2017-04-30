@@ -44,7 +44,7 @@ def generate_form_for_scoresheet(sheet_file):
     form = TestSheet(request.form)
     return form
 
-@app.route('/scoresheet/<testname>')
+@app.route('/scoresheet/<testname>', methods=['GET', 'POST'])
 def scoresheet(testname):
     sheet_path = os.path.expanduser(os.path.join(scoresheets_dir, testname+".tex"))
     form = generate_form_for_scoresheet(open(sheet_path))
