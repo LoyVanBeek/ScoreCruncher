@@ -1,0 +1,35 @@
+/*input.text, select.select {
+    border: 1px solid #222;
+    background: #fff;
+}*/
+
+body {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+input[type=text] {
+    width: 100%;
+    padding: 6px 10px;
+    margin: 8px 0;
+    box-sizing: border-box;
+}
+input[type=text]:focus {
+    border: 1px solid #555;
+}
+
+table {
+    border-collapse: collapse;
+    width: 75%;
+}
+
+th, td {
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even){background-color: #f2f2f2}
+
+th {
+    background-color: #4CAF50;
+    color: white;
+}

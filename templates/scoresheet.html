@@ -1,0 +1,27 @@
+{% from "_formhelpers.html" import render_field %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+    <title>Test</title>
+  </head>
+  <body>
+    <form method="POST">
+        <table>
+          <tr>
+            <th>Achievement</th>
+            <th>Score</th>
+          </tr>
+           {% for field in form %}
+    <!--            {{ field.label() }}
+               {{ field() }}
+               <br> -->
+               {{ render_field(field) }}
+           {% endfor %}
+        </table>
+        <p>
+            <input type="submit" value="Submit score"/>
+        </p>
+    </form>
+  </body>
+</html>
