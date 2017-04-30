@@ -6,6 +6,7 @@ from flask import Flask, session
 # from flask.ext.session import Session
 from flask import request, render_template, flash, redirect, url_for
 from wtforms import Form, Field, BooleanField, StringField, DateTimeField, TextAreaField, IntegerField, PasswordField, validators
+from challenge import Challenge
 
 app = Flask(__name__)
 # sess = Session()
@@ -18,36 +19,27 @@ class Scoresheet(Form):
     # date = DateTimeField("Date")
     attempt = IntegerField("Attempt")
 
-def generate_field(line):
-    """Example line:
-        \scoreitem{10}{Follow operator outside the arena}"""
-    content = line.strip()  # Remove whitespace
-    if line.startswith("\scoreitem") or True:
-        elements = re.findall('\{(.*?)\}', line)
-        max_score = elements[0]
-        achievement_desc = elements[1] + " [{score}]".format(score=max_score)
-        field_key = achievement_desc.replace(" ", "_")
-        return field_key, IntegerField(description=achievement_desc, validators=[validators.NumberRange(min=0, max=max_score)])
+def generate_field_for_achievement(achievement):
+    field_key = achievement.description.replace(" ", "_")
+    field_desc = achievement.description + " [{occ}x{score}]".format(occ=achievement.occurrences, score=achievement.score_per_occurence)
+    return field_key, IntegerField(description=field_desc,
+                                   validators=[validators.NumberRange(min=0, max=achievement.max_total)])
 
-def generate_form_for_scoresheet(sheet_file):
+def generate_form_for_challenge(challenge):
     class TestSheet(Scoresheet):
         pass
 
-    sheet_lines = sheet_file.readlines()
+    for achievement in challenge:
+        name, field = generate_field_for_achievement(achievement)
+        setattr(TestSheet, name, field)
 
-    for line in sheet_lines:
-        if "\scoreitem" in line:
-            name, field = generate_field(line)
-            if field:
-                setattr(TestSheet, name, field)
-
-    form = TestSheet(request.form)
-    return form
+    return TestSheet()
 
 @app.route('/scoresheet/<string:testname>', methods=['GET', 'POST'])
 def scoresheet(testname):
     sheet_path = os.path.expanduser(os.path.join(scoresheets_dir, testname+".tex"))
-    form = generate_form_for_scoresheet(open(sheet_path))
+    chall = Challenge.from_scoresheet(open(sheet_path))
+    form = generate_form_for_challenge(chall)
     
     if request.method == 'POST' and form.validate():
         # TODO: save scores
