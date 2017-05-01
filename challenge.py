@@ -18,12 +18,12 @@ class ScoreItem(object):
         :param line a line of TeX, eg. "    \scoreitem[5]{10}{Correctly answered a question}"
         :returns ScoreItem
 
-        >>> ach = ScoreItem.from_texline("\scoreitem[5]{10}{Correctly answered a question}")
-        >>> ach.description
+        >>> item = ScoreItem.from_texline("\scoreitem[5]{10}{Correctly answered a question}")
+        >>> item.description
         'Correctly answered a question'
-        >>> ach.occurrences
+        >>> item.occurrences
         5
-        >>> ach.score_per_occurence
+        >>> item.score_per_occurence
         10"""
 
         try:
@@ -69,15 +69,47 @@ class Challenge(object):
         return iter(self.score_items)
 
 
-class Attempt(object):
-    """An attempt is, well, an attempt to complete a challenge. Most likely, not all potential achievements in a Challenge are accomplished"""
+class Achievement(object):
+    """Represents a robot that actually achieved/accomplished a ScoreItem
 
-    def __init__(self):
-        pass
+    >>> item = ScoreItem("Correctly answered a question", 10, 5)
+    >>> ach_succes = Achievement(item)
+    >>> ach_succes.score
+    10
+    """
+
+    def __init__(self, score_item, adjusted_score=None):
+        """
+        :param score_item: Which ScoreItem is achieved in this Achievement
+        :type score_item ScoreItem
+        :param adjusted_score: if the realized score is not the score for the ScoreItem but the referee gave a customized score, that is represented here.
+        """
+        self.score_item = score_item
+        self.adjusted_score = adjusted_score
+
+    @property
+    def score(self):
+        return self.score_item.score_per_occurence if not self.adjusted_score else self.adjusted_score
+
+
+class Attempt(object):
+    """An attempt is, well, an attempt to complete a challenge. Most likely, not all potential achievements in a Challenge are accomplished
+
+    >>> question = ScoreItem("Correctly answered a question", 10, 5)
+    >>> face = ScoreItem("Correctly recognized face", 5, 3)
+    >>> correct_question = Achievement(question)
+    >>> correct_face = Achievement(face)
+    >>> attempt = Attempt([correct_question, correct_face])
+    >>> attempt.total_score
+    15
+    """
+
+    def __init__(self, achievements):
+        self.achievements = achievements
 
     @property
     def total_score(self):
-        return 0
+        return sum(ach.score for ach in self.achievements)
 
 if __name__ == "__main__":
     import doctest
