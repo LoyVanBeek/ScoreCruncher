@@ -22,6 +22,7 @@ class Scoresheet(Form):
 def generate_field_for_achievement(achievement):
     field_key = achievement.description.replace(" ", "_")
     field_desc = achievement.description + " [{occ}x{score}]".format(occ=achievement.occurrences, score=achievement.score_per_occurence)
+    print(field_desc)
     return field_key, IntegerField(description=field_desc,
                                    validators=[validators.NumberRange(min=0, max=achievement.max_total)])
 
@@ -38,7 +39,7 @@ def generate_form_for_challenge(challenge):
 @app.route('/scoresheet/<string:testname>', methods=['GET', 'POST'])
 def scoresheet(testname):
     sheet_path = os.path.expanduser(os.path.join(scoresheets_dir, testname+".tex"))
-    chall = Challenge.from_scoresheet(open(sheet_path))
+    chall = Challenge.from_texfile(open(sheet_path))
     form = generate_form_for_challenge(chall)
     
     if request.method == 'POST' and form.validate():
